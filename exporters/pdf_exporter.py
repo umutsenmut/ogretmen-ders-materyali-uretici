@@ -1,4 +1,5 @@
 import io
+import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
@@ -16,22 +17,51 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+# Register DejaVu Sans which has full Unicode / Turkish character support
+_FONT_REGISTERED = False
+_FONT_NAME = "Helvetica"
+_FONT_BOLD = "Helvetica-Bold"
+
+def _register_unicode_font():
+    global _FONT_REGISTERED, _FONT_NAME, _FONT_BOLD
+    if _FONT_REGISTERED:
+        return
+    candidates = [
+        ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
+        ("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+    ]
+    for regular, bold in candidates:
+        if os.path.exists(regular) and os.path.exists(bold):
+            try:
+                pdfmetrics.registerFont(TTFont("TurkishFont", regular))
+                pdfmetrics.registerFont(TTFont("TurkishFont-Bold", bold))
+                _FONT_NAME = "TurkishFont"
+                _FONT_BOLD = "TurkishFont-Bold"
+                break
+            except Exception:
+                pass
+    _FONT_REGISTERED = True
+
 
 def _build_styles():
+    _register_unicode_font()
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
         "CustomTitle",
         parent=styles["Title"],
+        fontName=_FONT_BOLD,
         fontSize=18,
         leading=22,
         textColor=colors.HexColor("#0d6efd"),
         spaceAfter=12,
         alignment=TA_CENTER,
-        encoding="utf-8",
     )
     heading_style = ParagraphStyle(
         "CustomHeading",
         parent=styles["Heading2"],
+        fontName=_FONT_BOLD,
         fontSize=13,
         leading=16,
         textColor=colors.HexColor("#0d6efd"),
@@ -41,6 +71,7 @@ def _build_styles():
     body_style = ParagraphStyle(
         "CustomBody",
         parent=styles["Normal"],
+        fontName=_FONT_NAME,
         fontSize=10,
         leading=14,
         spaceAfter=4,
@@ -49,6 +80,7 @@ def _build_styles():
     justify_style = ParagraphStyle(
         "CustomJustify",
         parent=styles["Normal"],
+        fontName=_FONT_NAME,
         fontSize=10,
         leading=14,
         spaceAfter=4,
@@ -71,7 +103,7 @@ class PdfExporter:
         title_style, heading_style, body_style, _ = _build_styles()
         story = []
 
-        story.append(Paragraph(f"Bilgi Kartlari", title_style))
+        story.append(Paragraph("Bilgi Kartları", title_style))
         story.append(Paragraph(f"{subject} - {topic}", heading_style))
         story.append(Spacer(1, 0.5 * cm))
         story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#0d6efd")))
@@ -84,8 +116,8 @@ class PdfExporter:
 
             table_data = [
                 [
-                    Paragraph(f"Kart {card_id} - On Yuz", body_style),
-                    Paragraph(f"Kart {card_id} - Arka Yuz", body_style),
+                    Paragraph(f"Kart {card_id} - Ön Yüz", body_style),
+                    Paragraph(f"Kart {card_id} - Arka Yüz", body_style),
                 ],
                 [
                     Paragraph(self._safe(front), body_style),
@@ -127,7 +159,7 @@ class PdfExporter:
         title_style, heading_style, body_style, _ = _build_styles()
         story = []
 
-        story.append(Paragraph("Sunum Icerigi", title_style))
+        story.append(Paragraph("Sunum İçeriği", title_style))
         story.append(Paragraph(f"{subject} - {topic}", heading_style))
         story.append(Spacer(1, 0.5 * cm))
         story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#0d6efd")))
@@ -149,7 +181,7 @@ class PdfExporter:
 
             if visual:
                 story.append(
-                    Paragraph(f"Gorsel Oneri: {self._safe(visual)}", body_style)
+                    Paragraph(f"Görsel Öneri: {self._safe(visual)}", body_style)
                 )
             story.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
             story.append(Spacer(1, 0.3 * cm))
@@ -170,11 +202,11 @@ class PdfExporter:
         title_style, heading_style, body_style, justify_style = _build_styles()
         story = []
 
-        story.append(Paragraph("Test / Sinav", title_style))
+        story.append(Paragraph("Test / Sınav", title_style))
         story.append(Paragraph(f"{subject} - {topic}", heading_style))
         story.append(Spacer(1, 0.3 * cm))
         story.append(
-            Paragraph("Ad Soyad: ___________________________   Tarih: __________   Sinif: _______", body_style)
+            Paragraph("Ad Soyad: ___________________________   Tarih: __________   Sınıf: _______", body_style)
         )
         story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#0d6efd")))
         story.append(Spacer(1, 0.3 * cm))
@@ -183,7 +215,7 @@ class PdfExporter:
         open_ended = test_data.get("open_ended", [])
 
         if multiple_choice:
-            story.append(Paragraph("A BOLUMU - Coktan Secmeli Sorular", heading_style))
+            story.append(Paragraph("A BÖLÜMÜ - Çoktan Seçmeli Sorular", heading_style))
             for i, q in enumerate(multiple_choice, 1):
                 question_text = self._safe(q.get("question", ""))
                 story.append(Paragraph(f"{i}. {question_text}", body_style))
@@ -195,7 +227,7 @@ class PdfExporter:
 
         if open_ended:
             story.append(PageBreak())
-            story.append(Paragraph("B BOLUMU - Acik Uclu Sorular", heading_style))
+            story.append(Paragraph("B BÖLÜMÜ - Açık Uçlu Sorular", heading_style))
             for i, q in enumerate(open_ended, 1):
                 question_text = self._safe(q.get("question", ""))
                 story.append(Paragraph(f"{i}. {question_text}", body_style))
@@ -266,13 +298,13 @@ class PdfExporter:
 
         detailed = notes_data.get("detailed_explanation", "")
         if detailed:
-            story.append(Paragraph("Ayrintili Aciklama", heading_style))
+            story.append(Paragraph("Ayrıntılı Açıklama", heading_style))
             story.append(Paragraph(self._safe(detailed), justify_style))
             story.append(Spacer(1, 0.3 * cm))
 
         examples = notes_data.get("examples", [])
         if examples:
-            story.append(Paragraph("Ornekler", heading_style))
+            story.append(Paragraph("Örnekler", heading_style))
             for ex in examples:
                 story.append(Paragraph(f"• {self._safe(ex)}", body_style))
             story.append(Spacer(1, 0.3 * cm))
@@ -286,7 +318,7 @@ class PdfExporter:
 
         tips = notes_data.get("tips", [])
         if tips:
-            story.append(Paragraph("Ogretim Ipuclari", heading_style))
+            story.append(Paragraph("Öğretim İpuçları", heading_style))
             for tip in tips:
                 story.append(Paragraph(f"✓ {self._safe(tip)}", body_style))
 
@@ -294,21 +326,10 @@ class PdfExporter:
         return buffer.getvalue()
 
     def _safe(self, text):
+        """Escape XML special characters for use in ReportLab Paragraph markup."""
         if not text:
             return ""
-        replacements = {
-            "ğ": "g", "Ğ": "G",
-            "ş": "s", "Ş": "S",
-            "ı": "i", "İ": "I",
-            "ç": "c", "Ç": "C",
-            "ö": "o", "Ö": "O",
-            "ü": "u", "Ü": "U",
-            "⚠": "(!)",
-            "✓": "(v)",
-            "•": "-",
-        }
-        for orig, repl in replacements.items():
-            text = text.replace(orig, repl)
-        # Escape XML special chars
+        text = str(text)
+        # Escape XML special chars used by ReportLab's Paragraph markup
         text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         return text
