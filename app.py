@@ -1,5 +1,6 @@
 import os
 import json
+import html as html_module
 from flask import (
     Flask,
     render_template,
@@ -344,22 +345,30 @@ def _content_to_text(material_type, content, subject, topic):
     return "\n".join(lines)
 
 
+def _esc(text):
+    """HTML-escape user-supplied content to prevent XSS."""
+    return html_module.escape(str(text)) if text else ""
+
+
 def _content_to_html(material_type, content, subject, topic):
+    e_subject = _esc(subject)
+    e_topic = _esc(topic)
+    e_mtype = _esc(material_type)
     parts = [
         "<!DOCTYPE html><html lang='tr'><head><meta charset='UTF-8'>",
         "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'>",
-        f"<title>{subject} - {topic}</title></head><body class='container py-4'>",
-        f"<h1>{subject} - {topic}</h1><h4 class='text-muted'>{material_type}</h4><hr>",
+        f"<title>{e_subject} - {e_topic}</title></head><body class='container py-4'>",
+        f"<h1>{e_subject} - {e_topic}</h1><h4 class='text-muted'>{e_mtype}</h4><hr>",
     ]
     if material_type == "Bilgi Kartları":
         parts.append("<div class='row'>")
         for card in content.get("cards", []):
             parts.append(
                 f"<div class='col-md-6 mb-3'><div class='card'>"
-                f"<div class='card-header bg-primary text-white'>Kart {card.get('id','')} - Ön Yüz</div>"
-                f"<div class='card-body'><p>{card.get('front','')}</p></div>"
+                f"<div class='card-header bg-primary text-white'>Kart {_esc(card.get('id',''))} - Ön Yüz</div>"
+                f"<div class='card-body'><p>{_esc(card.get('front',''))}</p></div>"
                 f"<div class='card-header bg-success text-white'>Arka Yüz</div>"
-                f"<div class='card-body'><p>{card.get('back','')}</p></div>"
+                f"<div class='card-body'><p>{_esc(card.get('back',''))}</p></div>"
                 f"</div></div>"
             )
         parts.append("</div>")
@@ -367,39 +376,39 @@ def _content_to_html(material_type, content, subject, topic):
         for slide in content.get("slides", []):
             parts.append(
                 f"<div class='card mb-3'><div class='card-header'>"
-                f"<strong>Slayt {slide.get('slide_number','')}: {slide.get('title','')}</strong></div>"
+                f"<strong>Slayt {_esc(slide.get('slide_number',''))}: {_esc(slide.get('title',''))}</strong></div>"
                 f"<div class='card-body'><ul>"
             )
             for item in slide.get("content", []):
-                parts.append(f"<li>{item}</li>")
+                parts.append(f"<li>{_esc(item)}</li>")
             parts.append(
-                f"</ul><em>Görsel: {slide.get('visual_suggestion','')}</em></div></div>"
+                f"</ul><em>Görsel: {_esc(slide.get('visual_suggestion',''))}</em></div></div>"
             )
     elif material_type == "Test":
         parts.append("<h3>Çoktan Seçmeli</h3>")
         for i, q in enumerate(content.get("multiple_choice", []), 1):
-            parts.append(f"<p><strong>{i}. {q.get('question','')}</strong></p><ul>")
+            parts.append(f"<p><strong>{i}. {_esc(q.get('question',''))}</strong></p><ul>")
             for k, v in q.get("options", {}).items():
-                parts.append(f"<li>{k}) {v}</li>")
-            parts.append(f"</ul><p class='text-success'>Cevap: {q.get('correct_answer','')}</p>")
+                parts.append(f"<li>{_esc(k)}) {_esc(v)}</li>")
+            parts.append(f"</ul><p class='text-success'>Cevap: {_esc(q.get('correct_answer',''))}</p>")
         parts.append("<h3>Açık Uçlu</h3>")
         for i, q in enumerate(content.get("open_ended", []), 1):
-            parts.append(f"<p><strong>{i}. {q.get('question','')}</strong></p><br><hr>")
+            parts.append(f"<p><strong>{i}. {_esc(q.get('question',''))}</strong></p><br><hr>")
     else:
-        parts.append(f"<h2>{content.get('title','')}</h2>")
+        parts.append(f"<h2>{_esc(content.get('title',''))}</h2>")
         parts.append("<h4>Ana Kavramlar</h4><ul>")
         for c in content.get("main_concepts", []):
-            parts.append(f"<li>{c}</li>")
-        parts.append(f"</ul><h4>Ayrıntılı Açıklama</h4><p>{content.get('detailed_explanation','')}</p>")
+            parts.append(f"<li>{_esc(c)}</li>")
+        parts.append(f"</ul><h4>Ayrıntılı Açıklama</h4><p>{_esc(content.get('detailed_explanation',''))}</p>")
         parts.append("<h4>Örnekler</h4><ul>")
         for ex in content.get("examples", []):
-            parts.append(f"<li>{ex}</li>")
+            parts.append(f"<li>{_esc(ex)}</li>")
         parts.append("</ul><h4>Dikkat Edilmesi Gerekenler</h4><ul>")
         for w in content.get("warnings", []):
-            parts.append(f"<li>{w}</li>")
+            parts.append(f"<li>{_esc(w)}</li>")
         parts.append("</ul><h4>İpuçları</h4><ul>")
         for tip in content.get("tips", []):
-            parts.append(f"<li>{tip}</li>")
+            parts.append(f"<li>{_esc(tip)}</li>")
         parts.append("</ul>")
 
     parts.append("</body></html>")
@@ -424,4 +433,5 @@ def api_subjects():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_mode)

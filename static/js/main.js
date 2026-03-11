@@ -277,6 +277,7 @@ function renderGeneratedMaterials(materials) {
   container.innerHTML = "";
   container.classList.remove("d-none");
 
+  // All labels come from a hardcoded map (safe); id is always an integer from the server
   const typeLabels = {
     flashcards: "Bilgi Kartları",
     presentation: "Sunum",
@@ -286,23 +287,43 @@ function renderGeneratedMaterials(materials) {
 
   for (const [mtype, info] of Object.entries(materials)) {
     const label = typeLabels[mtype] || mtype;
-    const id = info.id;
+    const id = parseInt(info.id, 10); // Ensure integer, never a raw string
     const col = document.createElement("div");
     col.className = "col-md-6 mb-3";
-    col.innerHTML = `
-      <div class="card h-100">
-        <div class="card-body text-center py-4">
-          <i class="bi bi-check-circle-fill text-success fs-2 mb-2"></i>
-          <h5 class="card-title">${label}</h5>
-          <p class="text-muted small">Materyal ID: ${id}</p>
-          <a href="/preview/${id}" class="btn btn-primary btn-sm me-1">
-            <i class="bi bi-eye"></i> Önizle
-          </a>
-          <a href="/download/${id}/pdf" class="btn btn-outline-danger btn-sm me-1">
-            <i class="bi bi-file-earmark-pdf"></i> PDF
-          </a>
-        </div>
-      </div>`;
+
+    const card = document.createElement("div");
+    card.className = "card h-100";
+    const body = document.createElement("div");
+    body.className = "card-body text-center py-4";
+
+    const icon = document.createElement("i");
+    icon.className = "bi bi-check-circle-fill text-success fs-2 mb-2 d-block";
+
+    const title = document.createElement("h5");
+    title.className = "card-title";
+    title.textContent = label;
+
+    const idPara = document.createElement("p");
+    idPara.className = "text-muted small";
+    idPara.textContent = `Materyal ID: ${id}`;
+
+    const previewLink = document.createElement("a");
+    previewLink.href = `/preview/${id}`;
+    previewLink.className = "btn btn-primary btn-sm me-1";
+    previewLink.innerHTML = '<i class="bi bi-eye"></i> Önizle';
+
+    const pdfLink = document.createElement("a");
+    pdfLink.href = `/download/${id}/pdf`;
+    pdfLink.className = "btn btn-outline-danger btn-sm";
+    pdfLink.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> PDF';
+
+    body.appendChild(icon);
+    body.appendChild(title);
+    body.appendChild(idPara);
+    body.appendChild(previewLink);
+    body.appendChild(pdfLink);
+    card.appendChild(body);
+    col.appendChild(card);
     container.appendChild(col);
   }
 }
