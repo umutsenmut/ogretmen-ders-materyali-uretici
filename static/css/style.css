@@ -1,0 +1,507 @@
+/* ============================================================
+   Öğretmen Materyali Üretici - Custom Styles
+   ============================================================ */
+
+:root {
+  --primary: #0d6efd;
+  --success: #198754;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #0dcaf0;
+  --light-blue: #e8f4fd;
+  --today-yellow: #fff3cd;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #212529;
+}
+
+/* ── Navbar ── */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #fff !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.2s;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #fff;
+}
+
+/* ── Cards ── */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+  font-weight: 600;
+}
+
+/* ── Hero Section ── */
+.hero-section {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 4rem 0 3rem;
+  margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.hero-section p {
+  font-size: 1.15rem;
+  opacity: 0.9;
+}
+
+/* ── Feature Cards ── */
+.feature-card {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+.feature-card .feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+.feature-card h5 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Stats Section ── */
+.stat-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stat-card .stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+/* ── Upload Area ── */
+.upload-area {
+  border: 2px dashed #0d6efd;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  background: #f0f6ff;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.upload-area:hover,
+.upload-area.dragover {
+  background: #d9eaff;
+  border-color: #0a58ca;
+}
+
+.upload-area .upload-icon {
+  font-size: 3.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.upload-area p {
+  color: #495057;
+  margin: 0;
+}
+
+/* ── Schedule Table ── */
+.schedule-table {
+  font-size: 0.88rem;
+}
+
+.schedule-table th {
+  background: var(--primary);
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  padding: 0.7rem;
+}
+
+.schedule-table td {
+  vertical-align: middle;
+  text-align: center;
+  padding: 0.5rem;
+  min-height: 48px;
+}
+
+.schedule-cell {
+  background: white;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  position: relative;
+}
+
+.schedule-cell .delete-btn {
+  display: none;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.65rem;
+  cursor: pointer;
+  color: var(--danger);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.schedule-cell:hover .delete-btn {
+  display: inline;
+}
+
+/* Today / Tomorrow highlight */
+.col-today {
+  background: var(--today-yellow) !important;
+}
+
+.col-tomorrow {
+  background: var(--light-blue) !important;
+}
+
+.col-today th,
+.col-today td {
+  background: var(--today-yellow) !important;
+}
+
+.today-header {
+  background: #e09c00 !important;
+}
+
+.tomorrow-header {
+  background: #0b8dc7 !important;
+}
+
+/* ── Flashcard Flip ── */
+.flashcard-scene {
+  width: 100%;
+  perspective: 800px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.flashcard {
+  width: 100%;
+  height: 160px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard__face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  font-size: 0.95rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.flashcard__face--front {
+  background: linear-gradient(135deg, #0d6efd, #0a58ca);
+  color: white;
+}
+
+.flashcard__face--back {
+  background: linear-gradient(135deg, #198754, #157347);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+.flashcard-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Presentation Slides ── */
+.slide-card {
+  border-left: 5px solid var(--primary);
+  border-radius: 0 10px 10px 0;
+}
+
+.slide-number-badge {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  text-align: center;
+  line-height: 32px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+}
+
+.visual-suggestion {
+  background: #f0f6ff;
+  border: 1px dashed #0d6efd;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  color: #0a58ca;
+  margin-top: 0.5rem;
+}
+
+/* ── Test Display ── */
+.question-block {
+  background: white;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.question-block .question-text {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.option-item {
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+  transition: background 0.15s;
+}
+
+.option-item:hover {
+  background: #f0f6ff;
+}
+
+.option-item.correct {
+  background: #d1e7dd;
+  font-weight: 600;
+}
+
+.answer-key-row {
+  display: inline-block;
+  min-width: 70px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  margin: 2px;
+}
+
+/* ── Notes Display ── */
+.notes-section {
+  margin-bottom: 1.5rem;
+}
+
+.notes-section h5 {
+  color: var(--primary);
+  font-weight: 700;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.concept-badge {
+  display: inline-block;
+  background: var(--light-blue);
+  color: #0a58ca;
+  border: 1px solid #bee3f8;
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+  margin: 0.2rem;
+}
+
+.warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #fff3cd;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #d1e7dd;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+/* ── Loading Spinner ── */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#loading-overlay.active {
+  display: flex;
+}
+
+#loading-overlay .spinner-text {
+  color: white;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ── Toast ── */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 10000;
+}
+
+/* ── Responsive Tables ── */
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.table tbody tr:hover {
+  background: #f0f6ff;
+}
+
+/* ── Buttons ── */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.45rem 1.1rem;
+}
+
+.btn-lg {
+  padding: 0.65rem 1.8rem;
+  font-size: 1rem;
+}
+
+/* ── Material type checkboxes ── */
+.material-type-check {
+  border: 2px solid #dee2e6;
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.material-type-check:hover {
+  border-color: var(--primary);
+  background: #f0f6ff;
+}
+
+.material-type-check input[type="checkbox"]:checked + .material-type-check,
+.material-type-check.checked {
+  border-color: var(--primary);
+  background: #e8f0fe;
+}
+
+/* ── Section titles ── */
+.section-title {
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--primary);
+  display: inline-block;
+}
+
+/* ── Plan table ── */
+.plan-entry-table th {
+  background: #6c757d;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.plan-entry-table td {
+  font-size: 0.82rem;
+  vertical-align: top;
+}
+
+/* ── Footer ── */
+.footer {
+  background: #212529;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 1.5rem 0;
+  margin-top: 4rem;
+  font-size: 0.88rem;
+}
+
+/* ── Misc ── */
+.text-primary-custom {
+  color: var(--primary) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #0d6efd, #0a58ca);
+}
+
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 1.7rem;
+  }
+  .schedule-table {
+    font-size: 0.75rem;
+  }
+}

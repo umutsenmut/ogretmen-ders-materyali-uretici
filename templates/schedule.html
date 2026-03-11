@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Ders Programı{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+
+  <h2 class="section-title"><i class="bi bi-calendar-week me-2"></i>Haftalık Ders Programı</h2>
+
+  <!-- Add Lesson Form -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <i class="bi bi-plus-circle me-2"></i>Ders Ekle
+    </div>
+    <div class="card-body">
+      <form id="add-lesson-form" class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Gün</label>
+          <select id="lesson-day" class="form-select" required>
+            <option value="">-- Gün Seçin --</option>
+            <option value="Pazartesi">Pazartesi</option>
+            <option value="Salı">Salı</option>
+            <option value="Çarşamba">Çarşamba</option>
+            <option value="Perşembe">Perşembe</option>
+            <option value="Cuma">Cuma</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Saat / Ders Saati</label>
+          <input type="text" id="lesson-time" class="form-control"
+                 placeholder="örn. 08:40 – 09:20 veya 1. Ders" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Ders Adı</label>
+          <input type="text" id="lesson-subject" class="form-control"
+                 placeholder="örn. Matematik, Türkçe, 5-A" required>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-plus-lg me-1"></i>Ekle
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="d-flex gap-3 mb-3 flex-wrap">
+    <span class="badge" style="background:#e09c00;padding:.5rem .9rem;font-size:.85rem;">
+      <i class="bi bi-brightness-high me-1"></i>Bugün
+    </span>
+    <span class="badge" style="background:#0b8dc7;padding:.5rem .9rem;font-size:.85rem;">
+      <i class="bi bi-arrow-right me-1"></i>Yarın
+    </span>
+  </div>
+
+  <!-- Schedule Table -->
+  {% set days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"] %}
+
+  <div class="table-responsive">
+    <table class="table table-bordered schedule-table">
+      <thead>
+        <tr>
+          <th style="width:120px;">Saat</th>
+          {% for day in days %}
+          <th data-day="{{ day }}" class="text-center">{{ day }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% set all_slots = [] %}
+        {% for day, entries in schedule.items() %}
+          {% for entry in entries %}
+            {% if entry.time_slot not in all_slots %}
+              {% set _ = all_slots.append(entry.time_slot) %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+
+        {% if all_slots %}
+          {% for slot in all_slots | sort %}
+          <tr>
+            <td class="fw-semibold text-center align-middle small">{{ slot }}</td>
+            {% for day in days %}
+            <td data-day="{{ day }}" class="align-middle">
+              {% if day in schedule %}
+                {% for entry in schedule[day] %}
+                  {% if entry.time_slot == slot %}
+                  <div class="schedule-cell">
+                    {{ entry.subject_name }}
+                    <button class="delete-btn" onclick="deleteScheduleEntry({{ entry.id }})"
+                            title="Sil">✕</button>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        {% else %}
+          <!-- Show empty rows as placeholders -->
+          {% for i in range(1, 9) %}
+          <tr>
+            <td class="text-center text-muted small align-middle">{{ i }}. Ders</td>
+            {% for day in days %}
+            <td data-day="{{ day }}"></td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Show any entries not yet in a row (if slot didn't exist) -->
+        {% for day, entries in schedule.items() %}
+          {% for entry in entries %}
+            {% if entry.time_slot not in all_slots %}
+            <tr>
+              <td class="text-center fw-semibold small">{{ entry.time_slot }}</td>
+              {% for d in days %}
+              <td data-day="{{ d }}">
+                {% if d == day %}
+                <div class="schedule-cell">
+                  {{ entry.subject_name }}
+                  <button class="delete-btn" onclick="deleteScheduleEntry({{ entry.id }})" title="Sil">✕</button>
+                </div>
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if not schedule %}
+  <div class="alert alert-info mt-3">
+    <i class="bi bi-info-circle me-2"></i>Henüz ders programı oluşturulmamış. Yukarıdaki formu kullanarak ders ekleyin.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

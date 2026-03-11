@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Materyal Üret{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h2 class="section-title"><i class="bi bi-magic me-2"></i>Materyal Üret</h2>
+
+  <div class="row g-4">
+    <!-- Generation Form -->
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <i class="bi bi-sliders me-2"></i>Materyal Ayarları
+        </div>
+        <div class="card-body">
+          <form id="generate-form">
+
+            <div class="mb-3">
+              <label for="gen-subject" class="form-label fw-semibold">Ders Adı <span class="text-danger">*</span></label>
+              <input type="text" id="gen-subject" class="form-control"
+                     placeholder="örn. Matematik, Türkçe, Fen Bilimleri" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="gen-topic" class="form-label fw-semibold">Konu <span class="text-danger">*</span></label>
+              <input type="text" id="gen-topic" class="form-control"
+                     placeholder="örn. Doğal Sayılar, Sözcük Türleri..." required>
+            </div>
+
+            <div class="mb-3">
+              <label for="gen-outcomes" class="form-label fw-semibold">Kazanımlar</label>
+              <textarea id="gen-outcomes" class="form-control" rows="3"
+                        placeholder="Öğrenciler bu konuda... yapabilecektir."></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold d-block mb-2">Materyal Türleri <span class="text-danger">*</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="material-type-check">
+                    <input type="checkbox" class="material-type-checkbox" value="flashcards" checked>
+                    <i class="bi bi-card-text fs-3 d-block mb-1 text-primary"></i>
+                    <span class="fw-semibold small">Bilgi Kartları</span>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <label class="material-type-check">
+                    <input type="checkbox" class="material-type-checkbox" value="presentation">
+                    <i class="bi bi-easel2 fs-3 d-block mb-1 text-warning"></i>
+                    <span class="fw-semibold small">Sunum</span>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <label class="material-type-check">
+                    <input type="checkbox" class="material-type-checkbox" value="test">
+                    <i class="bi bi-patch-question fs-3 d-block mb-1 text-danger"></i>
+                    <span class="fw-semibold small">Test</span>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <label class="material-type-check">
+                    <input type="checkbox" class="material-type-checkbox" value="notes">
+                    <i class="bi bi-journal-text fs-3 d-block mb-1 text-success"></i>
+                    <span class="fw-semibold small">Öğretmen Notları</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              <i class="bi bi-magic me-2"></i>Üret
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- API Key Notice -->
+      <div class="alert alert-info mt-3 small">
+        <i class="bi bi-info-circle me-1"></i>
+        Yapay zeka desteği için <code>.env</code> dosyasında <code>OPENAI_API_KEY</code> tanımlayın.
+        Anahtar tanımlı değilse örnek materyaller üretilir.
+      </div>
+    </div>
+
+    <!-- Generated Results -->
+    <div class="col-lg-7">
+      <div id="generated-results" class="row d-none"></div>
+
+      <!-- Recent Materials -->
+      <div class="card">
+        <div class="card-header bg-secondary text-white">
+          <i class="bi bi-collection me-2"></i>Son Üretilen Materyaller
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ders</th>
+                  <th>Konu</th>
+                  <th>Tür</th>
+                  <th>Tarih</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="materials-table">
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-3">
+                    <i class="bi bi-hourglass me-1"></i>Yükleniyor...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load recent materials
+fetch('/api/materials')
+  .then(r => r.json())
+  .then(materials => {
+    const tbody = document.getElementById('materials-table');
+    if (!materials.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3"><i class="bi bi-inbox me-1"></i>Henüz materyal üretilmemiş</td></tr>';
+      return;
+    }
+    tbody.innerHTML = materials.slice(0, 20).map(m => `
+      <tr>
+        <td>${m.id}</td>
+        <td>${m.subject}</td>
+        <td>${m.topic}</td>
+        <td><span class="badge bg-primary">${m.material_type}</span></td>
+        <td class="small">${(m.created_at || '').slice(0, 16)}</td>
+        <td>
+          <a href="/preview/${m.id}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-eye"></i>
+          </a>
+        </td>
+      </tr>`).join('');
+  })
+  .catch(() => {
+    document.getElementById('materials-table').innerHTML =
+      '<tr><td colspan="6" class="text-danger text-center">Yüklenemedi</td></tr>';
+  });
+</script>
+{% endblock %}
