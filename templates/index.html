@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Ana Sayfa – Öğretmen Materyali Üretici{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section text-center">
+  <div class="container">
+    <h1><i class="bi bi-journal-bookmark-fill me-2"></i>Öğretmen Ders Materyali Üretim Sistemi</h1>
+    <p class="mt-3 mb-4">Yıllık planlarınızı yükleyin, ders programınızı oluşturun ve yapay zeka destekli materyaller üretin.</p>
+    <a href="{{ url_for('generate_page') }}" class="btn btn-light btn-lg me-2">
+      <i class="bi bi-magic me-1"></i>Materyal Üret
+    </a>
+    <a href="{{ url_for('upload_plan_page') }}" class="btn btn-outline-light btn-lg">
+      <i class="bi bi-cloud-upload me-1"></i>Plan Yükle
+    </a>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- Feature Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card feature-card h-100">
+        <div class="card-body">
+          <div class="feature-icon">
+            <i class="bi bi-file-earmark-arrow-up-fill"></i>
+          </div>
+          <h5>Plan Yükle</h5>
+          <p class="text-muted">PDF, Word veya Excel formatındaki yıllık planlarınızı sisteme yükleyin. Tüm içerik otomatik olarak ayrıştırılır ve veritabanına kaydedilir.</p>
+          <a href="{{ url_for('upload_plan_page') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-cloud-upload me-1"></i>Yükle
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card feature-card h-100">
+        <div class="card-body">
+          <div class="feature-icon">
+            <i class="bi bi-calendar-week-fill"></i>
+          </div>
+          <h5>Ders Programı</h5>
+          <p class="text-muted">Haftalık ders programınızı oluşturun ve yönetin. Bugün ve yarının dersleri otomatik olarak vurgulanır.</p>
+          <a href="{{ url_for('schedule_page') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-calendar-week me-1"></i>Programa Git
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card feature-card h-100">
+        <div class="card-body">
+          <div class="feature-icon">
+            <i class="bi bi-magic"></i>
+          </div>
+          <h5>Materyal Üret</h5>
+          <p class="text-muted">Yapay zeka ile bilgi kartları, sunum, test soruları ve öğretmen notları üretin. PDF, Word ve HTML formatında indirin.</p>
+          <a href="{{ url_for('generate_page') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-magic me-1"></i>Üretmeye Başla
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-4 mb-5">
+    <div class="col-12">
+      <h2 class="section-title">Hızlı Özet</h2>
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="stat-number">{{ plan_count }}</div>
+          <div class="stat-label"><i class="bi bi-file-earmark-text me-1"></i>Yüklü Plan</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="stat-number">{{ material_count }}</div>
+          <div class="stat-label"><i class="bi bi-collection me-1"></i>Üretilen Materyal</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="stat-number">{{ lesson_count }}</div>
+          <div class="stat-label"><i class="bi bi-calendar-check me-1"></i>Program Girişi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Navigation -->
+  <div class="row g-3 mb-5">
+    <div class="col-12">
+      <h2 class="section-title">Hızlı Erişim</h2>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('upload_plan_page') }}" class="btn btn-outline-primary w-100 py-3">
+        <i class="bi bi-upload d-block fs-4 mb-1"></i>Plan Yükle
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('schedule_page') }}" class="btn btn-outline-success w-100 py-3">
+        <i class="bi bi-calendar-week d-block fs-4 mb-1"></i>Program
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('generate_page') }}" class="btn btn-outline-warning w-100 py-3">
+        <i class="bi bi-magic d-block fs-4 mb-1"></i>Üret
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="/api/materials" target="_blank" class="btn btn-outline-secondary w-100 py-3">
+        <i class="bi bi-database d-block fs-4 mb-1"></i>Materyaller API
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

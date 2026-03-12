@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Materyal Önizle – {{ material.subject }} / {{ material.topic }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-eye me-2"></i>{{ material.subject }} – {{ material.topic }}
+      </h2>
+      <span class="badge bg-primary fs-6">{{ material.material_type }}</span>
+      <span class="text-muted small ms-2">
+        <i class="bi bi-clock me-1"></i>{{ (material.created_at or '')[:16] }}
+      </span>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('download', material_id=material.id, fmt='pdf') }}"
+         class="btn btn-danger btn-sm">
+        <i class="bi bi-file-earmark-pdf me-1"></i>PDF İndir
+      </a>
+      {% if material.material_type in ['Test', 'Öğretmen Notları'] %}
+      <a href="{{ url_for('download', material_id=material.id, fmt='docx') }}"
+         class="btn btn-primary btn-sm">
+        <i class="bi bi-file-earmark-word me-1"></i>Word İndir
+      </a>
+      {% endif %}
+      <a href="{{ url_for('download', material_id=material.id, fmt='txt') }}"
+         class="btn btn-secondary btn-sm">
+        <i class="bi bi-file-earmark-text me-1"></i>TXT İndir
+      </a>
+      <a href="{{ url_for('download', material_id=material.id, fmt='html') }}"
+         class="btn btn-success btn-sm">
+        <i class="bi bi-file-earmark-code me-1"></i>HTML İndir
+      </a>
+    </div>
+  </div>
+
+  {% set content = material.content %}
+  {% set mtype = material.material_type %}
+
+  <!-- ── Flashcards ── -->
+  {% if mtype == 'Bilgi Kartları' and content.cards %}
+  <h4 class="mb-3"><i class="bi bi-card-text me-2"></i>Bilgi Kartları
+    <small class="text-muted fs-6">({{ content.cards | length }} kart)</small>
+  </h4>
+  <p class="text-muted small mb-3"><i class="bi bi-hand-index me-1"></i>Kartın üzerine tıklayarak çevirebilirsiniz</p>
+  <div class="row g-3">
+    {% for card in content.cards %}
+    <div class="col-md-6 col-lg-4">
+      <div class="flashcard-scene">
+        <div class="flashcard">
+          <div class="flashcard__face flashcard__face--front">
+            <div>
+              <div class="small opacity-75 mb-2">SORU / KAVRAM</div>
+              <strong>{{ card.front }}</strong>
+            </div>
+          </div>
+          <div class="flashcard__face flashcard__face--back">
+            <div>
+              <div class="small opacity-75 mb-2">CEVAP / AÇIKLAMA</div>
+              {{ card.back }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="flashcard-hint">
+        <i class="bi bi-arrow-repeat me-1"></i>Tıklayarak çevir
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Presentation ── -->
+  {% elif mtype == 'Sunum' and content.slides %}
+  <h4 class="mb-3"><i class="bi bi-easel2 me-2"></i>Sunum
+    <small class="text-muted fs-6">({{ content.slides | length }} slayt)</small>
+  </h4>
+  <div class="row g-3">
+    {% for slide in content.slides %}
+    <div class="col-md-6">
+      <div class="card slide-card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <span class="slide-number-badge">{{ slide.slide_number }}</span>
+            <h6 class="mb-0 fw-bold">{{ slide.title }}</h6>
+          </div>
+          {% if slide.content %}
+          <ul class="mb-2 ps-3">
+            {% if slide.content is iterable and slide.content is not string %}
+              {% for item in slide.content %}
+              <li class="small">{{ item }}</li>
+              {% endfor %}
+            {% else %}
+              <li class="small">{{ slide.content }}</li>
+            {% endif %}
+          </ul>
+          {% endif %}
+          {% if slide.visual_suggestion %}
+          <div class="visual-suggestion">
+            <i class="bi bi-image me-1"></i>{{ slide.visual_suggestion }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Test ── -->
+  {% elif mtype == 'Test' %}
+  {% if content.multiple_choice %}
+  <h4 class="mb-3"><i class="bi bi-patch-question me-2"></i>Çoktan Seçmeli Sorular
+    <small class="text-muted fs-6">({{ content.multiple_choice | length }} soru)</small>
+  </h4>
+  {% for q in content.multiple_choice %}
+  <div class="question-block">
+    <p class="question-text">{{ loop.index }}. {{ q.question }}</p>
+    {% for key in ['A', 'B', 'C', 'D'] %}
+    <div class="option-item {% if q.correct_answer == key %}correct{% endif %}">
+      <span class="fw-bold me-2">{{ key }})</span>{{ q.options[key] if q.options[key] is defined else '' }}
+      {% if q.correct_answer == key %}
+      <i class="bi bi-check-circle-fill text-success ms-2"></i>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if content.open_ended %}
+  <h4 class="mt-4 mb-3"><i class="bi bi-chat-text me-2"></i>Açık Uçlu Sorular
+    <small class="text-muted fs-6">({{ content.open_ended | length }} soru)</small>
+  </h4>
+  {% for q in content.open_ended %}
+  <div class="question-block">
+    <p class="question-text">{{ loop.index }}. {{ q.question }}</p>
+    <div class="bg-light rounded p-2 mt-2" style="min-height:60px;border:1px dashed #ccc;">
+      <span class="text-muted small">Cevap alanı...</span>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ── Notes ── -->
+  {% elif mtype == 'Öğretmen Notları' %}
+  <div class="card">
+    <div class="card-body">
+      {% if content.title %}
+      <h3 class="text-primary mb-4">{{ content.title }}</h3>
+      {% endif %}
+
+      {% if content.main_concepts %}
+      <div class="notes-section">
+        <h5><i class="bi bi-lightbulb me-2"></i>Ana Kavramlar</h5>
+        <div>
+          {% for concept in content.main_concepts %}
+          <span class="concept-badge">{{ concept }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if content.detailed_explanation %}
+      <div class="notes-section">
+        <h5><i class="bi bi-book me-2"></i>Ayrıntılı Açıklama</h5>
+        <p class="text-justify">{{ content.detailed_explanation }}</p>
+      </div>
+      {% endif %}
+
+      {% if content.examples %}
+      <div class="notes-section">
+        <h5><i class="bi bi-journals me-2"></i>Örnekler</h5>
+        <ul>
+          {% for ex in content.examples %}
+          <li>{{ ex }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if content.warnings %}
+      <div class="notes-section">
+        <h5><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Dikkat Edilmesi Gerekenler</h5>
+        {% for w in content.warnings %}
+        <div class="warning-item">
+          <i class="bi bi-exclamation-circle text-warning flex-shrink-0"></i>
+          <span>{{ w }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if content.tips %}
+      <div class="notes-section">
+        <h5><i class="bi bi-star me-2 text-success"></i>Öğretim İpuçları</h5>
+        {% for tip in content.tips %}
+        <div class="tip-item">
+          <i class="bi bi-check-circle text-success flex-shrink-0"></i>
+          <span>{{ tip }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>İçerik görüntülenemiyor.
+    <a href="{{ url_for('download', material_id=material.id, fmt='txt') }}" class="btn btn-sm btn-outline-primary ms-2">
+      TXT olarak indir
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Back button -->
+  <div class="mt-4">
+    <a href="{{ url_for('generate_page') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Geri Dön
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Reinitialize flashcards after page load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.flashcard-scene').forEach(scene => {
+    scene.addEventListener('click', () => {
+      scene.querySelector('.flashcard').classList.toggle('flipped');
+    });
+  });
+});
+</script>
+{% endblock %}
