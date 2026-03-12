@@ -21,7 +21,7 @@ Bu uygulama ile şunları yapabilirsiniz:
 
 - **Python 3.9 veya üzeri** (3.10, 3.11, 3.12 de çalışır)
 - **pip** (Python ile birlikte gelir)
-- İnternet bağlantısı (yapay zeka özelliği için OpenAI hesabı)
+- İnternet bağlantısı (yapay zeka özelliği için OpenAI veya Google Gemini hesabı)
 
 > **Python kurulu değilse:** https://www.python.org/downloads/ adresine gidip işletim sisteminize uygun sürümü indirin. Kurulum sırasında **"Add Python to PATH"** seçeneğini mutlaka işaretleyin.
 
@@ -91,7 +91,7 @@ OPENAI_API_KEY=sk-buraya-api-anahtarinizi-yazin
 SECRET_KEY=gizli-bir-sifre-yazin
 ```
 
-> **OpenAI API anahtarı olmadan da çalışır!** API anahtarı yoksa sistem hazır şablon içerikler üretir. Gerçek yapay zeka içerikleri için bir sonraki bölümü okuyun.
+> **API anahtarı olmadan da çalışır!** Anahtar yoksa sistem hazır şablon içerikler üretir. Gerçek yapay zeka içerikleri için bir sonraki bölümü okuyun.
 
 ---
 
@@ -113,18 +113,44 @@ Tarayıcınızda (Chrome, Firefox vb.) şu adresi açın:
 
 ---
 
-## 🔑 OpenAI API Anahtarı Alma (İsteğe Bağlı)
+## 🔑 Yapay Zeka API Anahtarı Alma (İsteğe Bağlı)
 
 API anahtarı olmadan uygulama çalışır; ancak üretilen içerikler gerçek yapay zeka yerine hazır şablonlardan oluşur.
-Gerçek, konuya özel içerik için:
+Gerçek, konuya özel içerik üretmek için aşağıdaki iki seçenekten **birini** kullanabilirsiniz:
+
+---
+
+### Seçenek A — Google Gemini (Ücretsiz kota ile başla)
+
+1. **https://aistudio.google.com/app/apikey** adresine gidin (Google hesabıyla giriş yapın).
+2. **"Create API Key"** butonuna tıklayın.
+3. Oluşan anahtarı kopyalayın.
+4. `.env` dosyasını açın ve `GEMINI_API_KEY=` satırının sağına yapıştırın:
+   ```
+   GEMINI_API_KEY=AIzaSy...buraya-anahtarinizi-yazin
+   ```
+5. Uygulamayı yeniden başlatın (`Ctrl+C` ile durdurup tekrar `python app.py`).
+
+> **Maliyet:** Gemini 1.5 Flash modeli **ücretsiz kotayla** gelir (dakikada 15 istek, aylık 1 milyon token). Okul kullanımı için yeterlidir.
+
+---
+
+### Seçenek B — OpenAI (GPT-3.5)
 
 1. **https://platform.openai.com/signup** adresine gidin ve ücretsiz hesap oluşturun.
 2. Sol menüden **"API keys"** seçin → **"Create new secret key"** butonuna tıklayın.
 3. Oluşan `sk-...` ile başlayan anahtarı kopyalayın.
-4. `.env` dosyasını açın ve `OPENAI_API_KEY=` satırının sağına yapıştırın.
-5. Uygulamayı yeniden başlatın (`Ctrl+C` ile durdurup tekrar `python app.py`).
+4. `.env` dosyasını açın ve `OPENAI_API_KEY=` satırının sağına yapıştırın:
+   ```
+   OPENAI_API_KEY=sk-...buraya-anahtarinizi-yazin
+   ```
+5. Uygulamayı yeniden başlatın.
 
 > **Maliyet:** GPT-3.5-turbo ile her materyal üretimi yaklaşık **0,01–0,05 USD** tutar. Ücretsiz kayıt kredisi genellikle 5 USD'dir.
+
+---
+
+> **Not:** Her iki anahtar da tanımlıysa OpenAI önceliklidir. Materyal üretim sayfasında hangi yapay zekanın aktif olduğunu görebilirsiniz.
 
 ---
 
@@ -239,7 +265,8 @@ Daha önce üretilmiş materyallere erişmek için **[http://localhost:5000/api/
 
 **Materyal üretimi çok hızlı bitiyor / içerik kısa:**
 - API anahtarı girilmemiş olabilir; bu durumda sistem şablon içerik üretir.
-- `.env` dosyasında `OPENAI_API_KEY` satırının doğru doldurulduğunu kontrol edin.
+- `.env` dosyasında `OPENAI_API_KEY` veya `GEMINI_API_KEY` satırının doğru doldurulduğunu kontrol edin.
+- Materyal üretim sayfasındaki **"Aktif yapay zeka"** etiketine bakın; "şablon" gösteriyorsa anahtar okunamıyor demektir.
 - Uygulamayı durdurup (`Ctrl+C`) yeniden başlatın.
 
 **Veritabanı sıfırlamak istiyorum:**

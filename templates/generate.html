@@ -77,9 +77,16 @@
 
       <!-- API Key Notice -->
       <div class="alert alert-info mt-3 small">
-        <i class="bi bi-info-circle me-1"></i>
-        Yapay zeka desteği için <code>.env</code> dosyasında <code>OPENAI_API_KEY</code> tanımlayın.
-        Anahtar tanımlı değilse örnek materyaller üretilir.
+        <i class="bi bi-cpu me-1"></i>
+        <strong>Aktif yapay zeka:</strong>
+        <span class="badge bg-primary ms-1">{{ ai_provider }}</span>
+        <hr class="my-2">
+        Yapay zeka desteği için <code>.env</code> dosyasına aşağıdakilerden birini ekleyin:
+        <ul class="mb-0 mt-1">
+          <li><code>OPENAI_API_KEY</code> – OpenAI (GPT-3.5)</li>
+          <li><code>GEMINI_API_KEY</code> – Google Gemini 1.5 Flash</li>
+        </ul>
+        İkisi de tanımlıysa OpenAI önceliklidir. Anahtar yoksa örnek materyaller üretilir.
       </div>
     </div>
 

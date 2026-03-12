@@ -11,3 +11,4 @@ class Config:
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
     DATABASE_PATH = os.path.join(os.path.dirname(__file__), "materials.db")
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")

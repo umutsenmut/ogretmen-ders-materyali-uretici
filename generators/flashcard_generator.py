@@ -1,13 +1,13 @@
 import json
-import openai
+
+from generators.ai_client import call_ai, has_ai_key, extract_json_block
 
 
 class FlashcardGenerator:
-    def generate(self, subject, topic, learning_outcomes, api_key):
-        if not api_key or api_key.startswith("sk-your"):
+    def generate(self, subject, topic, learning_outcomes, api_key, gemini_key=""):
+        if not has_ai_key(api_key, gemini_key):
             return self._fallback(subject, topic)
         try:
-            client = openai.OpenAI(api_key=api_key)
             prompt = (
                 f"Sen bir Türk öğretmensin. Aşağıdaki konu için 8 adet bilgi kartı (flashcard) hazırla.\n"
                 f"Ders: {subject}\n"
@@ -17,18 +17,8 @@ class FlashcardGenerator:
                 "Yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir şey ekleme:\n"
                 '{"cards": [{"id": 1, "front": "...", "back": "..."}, ...]}'
             )
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=2000,
-            )
-            raw = response.choices[0].message.content.strip()
-            # Extract JSON from possible markdown code block
-            if "```" in raw:
-                raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
+            raw = call_ai(prompt, openai_key=api_key, gemini_key=gemini_key, max_tokens=2000)
+            raw = extract_json_block(raw)
             data = json.loads(raw)
             cards = data.get("cards", [])
             for i, card in enumerate(cards, 1):

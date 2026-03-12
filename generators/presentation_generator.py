@@ -1,13 +1,13 @@
 import json
-import openai
+
+from generators.ai_client import call_ai, has_ai_key, extract_json_block
 
 
 class PresentationGenerator:
-    def generate(self, subject, topic, learning_outcomes, api_key):
-        if not api_key or api_key.startswith("sk-your"):
+    def generate(self, subject, topic, learning_outcomes, api_key, gemini_key=""):
+        if not has_ai_key(api_key, gemini_key):
             return self._fallback(subject, topic)
         try:
-            client = openai.OpenAI(api_key=api_key)
             prompt = (
                 f"Sen bir Türk öğretmensin. Aşağıdaki konu için 12 slaytlık sunum hazırla.\n"
                 f"Ders: {subject}\n"
@@ -18,17 +18,8 @@ class PresentationGenerator:
                 "Yanıtını SADECE aşağıdaki JSON formatında ver:\n"
                 '{"slides": [{"slide_number": 1, "title": "...", "content": ["...", "..."], "visual_suggestion": "..."}, ...]}'
             )
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=3000,
-            )
-            raw = response.choices[0].message.content.strip()
-            if "```" in raw:
-                raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
+            raw = call_ai(prompt, openai_key=api_key, gemini_key=gemini_key, max_tokens=3000)
+            raw = extract_json_block(raw)
             data = json.loads(raw)
             return {"slides": data.get("slides", [])}
         except Exception:

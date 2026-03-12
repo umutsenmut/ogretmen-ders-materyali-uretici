@@ -173,7 +173,12 @@ def api_schedule_delete(entry_id):
 @app.route("/generate")
 def generate_page():
     plans = db.get_all_plans()
-    return render_template("generate.html", plans=plans)
+    from generators.ai_client import active_provider
+    ai_provider = active_provider(
+        openai_key=app.config.get("OPENAI_API_KEY", ""),
+        gemini_key=app.config.get("GEMINI_API_KEY", ""),
+    )
+    return render_template("generate.html", plans=plans, ai_provider=ai_provider)
 
 
 @app.route("/api/generate", methods=["POST"])
@@ -191,6 +196,7 @@ def api_generate():
         return jsonify({"error": "En az bir materyal türü seçin"}), 400
 
     api_key = app.config.get("OPENAI_API_KEY", "")
+    gemini_key = app.config.get("GEMINI_API_KEY", "")
     results = {}
 
     type_map = {
@@ -207,7 +213,7 @@ def api_generate():
             continue
         gen_class, display_name = type_map[mtype]
         generator = gen_class()
-        content = generator.generate(subject, topic, learning_outcomes, api_key)
+        content = generator.generate(subject, topic, learning_outcomes, api_key, gemini_key)
         material_id = db.save_generated_material(subject, topic, display_name, content)
         results[mtype] = {"id": material_id, "data": content}
         generated_ids[mtype] = material_id
